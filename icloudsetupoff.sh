@@ -3,55 +3,55 @@
 # Determine OS version
 osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 sw_vers=$(sw_vers -productVersion)
+users_folder="/Users"
+templates_folder="/System/Library/User Template"
 
-# Checks first to see if the Mac is running 10.7.0 or higher. 
-# If so, the script checks the system default user template
-# for the presence of the Library/Preferences directory.
-#
-# If the directory is not found, it is created and then the
-# iCloud pop-up settings are set to be disabled.
-
-if [[ ${osvers} -ge 7 ]]; then
-
- for USER_TEMPLATE in "/System/Library/User Template"/*
-  do
-  	cp /tmp/com.apple.SetupAssistant.plist "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant.plist
-    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
-    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
-    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
-  done
-
- # Checks first to see if the Mac is running 10.7.0 or higher.
- # If so, the script checks the existing user folders in /Users
+ # Checks the existing user folders in /Users
  # for the presence of the Library/Preferences directory.
- #
  # If the directory is not found, it is created and then the
- # iCloud pop-up settings are set to be disabled.
+ # plist is created if it does not exist.
+ # Then iCloud pop-up settings are set to be disabled.
+icloud_setup_off ()
+{
+  for user in "$1"/*
+   do
+     user_uid=`basename "${user}"`
+     if [ ! "${user_uid}" = "Shared" ]
+     then
+       if [ ! -d "${user}"/Library/Preferences ]
+       then
+         mkdir -p "${user}"/Library/Preferences
+         chown "${user_uid}" "${user}"/Library
+         chown "${user_uid}" "${user}"/Library/Preferences
+       fi
+     	if [ ! -a "${user}"/Library/Preferences/com.apple.SetupAssistant ]
+     	then
+     	cp /tmp/com.apple.SetupAssistant.plist "${user}"/Library/Preferences/com.apple.SetupAssistant.plist
+     	fi
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeApplePaySetup -bool TRUE
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeAvatarSetup -bool TRUE
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool TRUE
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeSyncSetup -bool TRUE
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeSyncSetup2 -bool TRUE
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeTouchIDSetup -bool TRUE
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeiCloudLoginForStorageServicesSetup -bool TRUE
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant SkipFirstLoginOptimization -bool TRUE
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
+      defaults write "$user"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
+      chown "${user_uid}" "${user}"/Library/Preferences/com.apple.SetupAssistant.plist
+       fi
+     fi
+   done
+ fi
+}
 
- for USER_HOME in /Users/*
-  do
-    USER_UID=`basename "${USER_HOME}"`
-    if [ ! "${USER_UID}" = "Shared" ] 
-    then 
-      if [ ! -d "${USER_HOME}"/Library/Preferences ]
-      then
-        mkdir -p "${USER_HOME}"/Library/Preferences
-        chown "${USER_UID}" "${USER_HOME}"/Library
-        chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
-      fi
-      if [ -d "${USER_HOME}"/Library/Preferences ]
-      then
-      	if [ ! -a "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant ]
-      	then
-      	cp /tmp/com.apple.SetupAssistant.plist "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant.plist
-      	fi
-        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
-        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
-        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
-        chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant.plist
-      fi
-    fi
-  done
-fi
+#run on users folder
+icloud_setup_off $users_folder
+
+#run on templates folder
+icloud_setup_off $templates_folder
+
 rm /tmp/com.apple.SetupAssistant.plist
+
 exit
