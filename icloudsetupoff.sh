@@ -3,8 +3,8 @@
 # Determine OS version
 osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 sw_vers=$(sw_vers -productVersion)
-users_folder="/Users"
-templates_folder="/System/Library/User Template"
+users_folder="/Users/"
+templates_folder="/System/Library/User Template/"
 
  # Checks the existing user folders in /Users
  # for the presence of the Library/Preferences directory.
@@ -13,7 +13,7 @@ templates_folder="/System/Library/User Template"
  # Then iCloud pop-up settings are set to be disabled.
 icloud_setup_off ()
 {
-for user in "$1"/*
+for user in "$1"
   do
     user_uid=`basename "${user}"`
     if [ ! "${user_uid}" = "Shared" ]
