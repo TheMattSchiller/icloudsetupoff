@@ -20,8 +20,7 @@ icloud_setup_off ()
 cd "$1"
 for user in *
   do
-    echo
-    echo "Disabling iCloud setup and Setup Assistant for $user ..."
+    echo "$user"
     if [ "$1" = "$templates_folder" ]
     then
       user_uid="root"
@@ -32,18 +31,14 @@ for user in *
     then
       if [ ! -d "${user}"/Library/Preferences ]
       then
-        echo "creating preferences directory"
         mkdir -p "${user}"/Library/Preferences
         chown "${user_uid}" "${user}"/Library
         chown "${user_uid}" "${user}"/Library/Preferences
       fi
       if [ ! -a "${user}""$plist" ]
       then
-        echo "creating empty plist for $user"
         touch "${user}""$plist".plist
       fi
-      echo "writing plist for user..."
-      echo "$1"/"$user""$plist"
       defaults write "$1"/"$user""$plist" DidSeeCloudSetup -bool TRUE
       defaults write "$1"/"$user""$plist" DidSeeApplePaySetup -bool TRUE
       defaults write "$1"/"$user""$plist" DidSeeAvatarSetup -bool TRUE
@@ -61,6 +56,8 @@ for user in *
 done
 }
 
+echo "Disabling iCloud setup and Setup Assistant for..."
+echo "..."
 #run on users folder
 icloud_setup_off "$users_folder"
 
