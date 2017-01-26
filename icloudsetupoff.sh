@@ -13,21 +13,21 @@ templates_folder="/System/Library/User Template"
  # Then iCloud pop-up settings are set to be disabled.
 icloud_setup_off ()
 {
-  for user in "$1"/*
-   do
-     user_uid=`basename "${user}"`
-     if [ ! "${user_uid}" = "Shared" ]
-     then
-       if [ ! -d "${user}"/Library/Preferences ]
-       then
-         mkdir -p "${user}"/Library/Preferences
-         chown "${user_uid}" "${user}"/Library
-         chown "${user_uid}" "${user}"/Library/Preferences
-       fi
-     	if [ ! -a "${user}"/Library/Preferences/com.apple.SetupAssistant ]
-     	then
-     	cp /tmp/com.apple.SetupAssistant.plist "${user}"/Library/Preferences/com.apple.SetupAssistant.plist
-     	fi
+for user in "$1"/*
+  do
+    user_uid=`basename "${user}"`
+    if [ ! "${user_uid}" = "Shared" ]
+    then
+      if [ ! -d "${user}"/Library/Preferences ]
+      then
+        mkdir -p "${user}"/Library/Preferences
+        chown "${user_uid}" "${user}"/Library
+        chown "${user_uid}" "${user}"/Library/Preferences
+      fi
+      if [ ! -a "${user}"/Library/Preferences/com.apple.SetupAssistant ]
+      then
+        cp /tmp/com.apple.SetupAssistant.plist "${user}"/Library/Preferences/com.apple.SetupAssistant.plist
+      fi
       defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
       defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeApplePaySetup -bool TRUE
       defaults write "$user"/Library/Preferences/com.apple.SetupAssistant DidSeeAvatarSetup -bool TRUE
@@ -40,10 +40,8 @@ icloud_setup_off ()
       defaults write "$user"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
       defaults write "$user"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
       chown "${user_uid}" "${user}"/Library/Preferences/com.apple.SetupAssistant.plist
-       fi
-     fi
-   done
- fi
+    fi
+done
 }
 
 #run on users folder
