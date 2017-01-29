@@ -10,6 +10,12 @@ users_folder="/Users"
 templates_folder="/System/Library/User Template"
 plist="/Library/Preferences/com.apple.SetupAssistant"
 
+#Ensures that script is run as root user
+if [ $(id -u) != 0 ];
+then
+	echo "this script must be run as root"
+	exit 1
+fi
 #Checks the existing user folders in /Users
 #for the presence of the Library/Preferences directory.
 #If the directory is not found, it is created and then the
